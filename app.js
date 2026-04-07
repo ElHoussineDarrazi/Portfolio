@@ -1,0 +1,136 @@
+tailwind.config = {
+    theme: {
+        extend: {
+            colors: {
+                primary: '#6366f1',
+                secondary: '#8b5cf6',
+                dark: '#0f172a',
+            },
+            fontFamily: {
+                inter: ['Inter', 'system-ui', 'sans-serif'],
+            },
+        }
+    }
+};
+
+const translations = {
+    fr: {
+        "nav.extensions": "Extensions",
+        "nav.about": "À propos",
+        "nav.contact": "Contact",
+        "hero.title": "Des extensions qui améliorent votre productivité",
+        "hero.subtitle": "Découvrez mes créations pour navigateur : des outils utiles, performants et conçus avec soin pour améliorer votre expérience quotidienne sur internet.",
+        "hero.btn.extensions": "Voir les extensions",
+        "hero.btn.contact": "Me contacter",
+        "stats.count": "Extensions publiées",
+        "stats.users": "Utilisateurs actifs",
+        "stats.rating": "Note moyenne",
+        "stats.free": "Gratuites",
+        "extensions.title": "Mes Extensions",
+        "extensions.subtitle": "Chaque extension est développée avec attention au détail, performance et respect de la vie privée.",
+        "about.title": "À propos",
+        "about.p1": "Passionné par le développement web et l'expérience utilisateur, je crée des extensions navigateur depuis 2019.",
+        "about.p2": "Chaque outil est construit avec la même philosophie : simplicité, performance, respect de la vie privée et absence de publicité.",
+        "about.p3": "Toutes mes extensions sont 100% gratuites et open source. Elles sont utilisées par plus de 50 000 personnes dans le monde entier.",
+        "contact.title": "Une idée ? Un problème ?",
+        "contact.subtitle": "N'hésitez pas à me contacter pour toute suggestion, demande de fonctionnalité ou signalement de bug.",
+        "contact.email": "Envoyer un mail",
+        "footer.subtitle": "Des extensions pour une productivité meilleure.",
+        "footer.copyright": "© 2026 Tous droits réservés.",
+        "site.title": "Mes Extensions",
+        "tag.popular": "Populaire",
+        "tag.new": "Nouveau",
+        "tag.top": "Top",
+        "ext1.title": "Privacy Guard",
+        "ext1.desc": "Protégez votre vie privée en bloquant les traceurs, publicités et fingerprinting pendant votre navigation.",
+        "ext2.title": "Tab Manager Pro",
+        "ext2.desc": "Organisez des centaines d'onglets automatiquement, retrouvez-les en 1 clic et économisez de la mémoire.",
+        "ext3.title": "Dark Mode Everywhere",
+        "ext3.desc": "Activez le mode sombre sur absolument tous les sites web, avec personnalisation des couleurs.",
+        "ext4.title": "Media Downloader",
+        "ext4.desc": "Téléchargez vidéos, musiques et images depuis n'importe quel site en un seul clic.",
+        "ext5.title": "Shortcuts Master",
+        "ext5.desc": "Créez vos propres raccourcis clavier personnalisés pour n'importe quelle action sur le navigateur.",
+        "ext6.title": "Web Notes",
+        "ext6.desc": "Prenez des notes directement sur les pages web, synchronisées sur tous vos appareils.",
+    },
+    en: {
+        "nav.extensions": "Extensions",
+        "nav.about": "About",
+        "nav.contact": "Contact",
+        "hero.title": "Extensions that improve your productivity",
+        "hero.subtitle": "Discover my browser creations: useful, powerful tools carefully designed to improve your daily internet experience.",
+        "hero.btn.extensions": "View extensions",
+        "hero.btn.contact": "Contact me",
+        "stats.count": "Published extensions",
+        "stats.users": "Active users",
+        "stats.rating": "Average rating",
+        "stats.free": "Free",
+        "extensions.title": "My Extensions",
+        "extensions.subtitle": "Each extension is developed with attention to detail, performance and privacy respect.",
+        "about.title": "About",
+        "about.p1": "Passionate about web development and user experience, I've been creating browser extensions since 2019.",
+        "about.p2": "Every tool is built with the same philosophy: simplicity, performance, privacy respect and ad-free.",
+        "about.p3": "All my extensions are 100% free and open source. They are used by more than 50,000 people worldwide.",
+        "contact.title": "Got an idea? Found an issue?",
+        "contact.subtitle": "Feel free to contact me for any suggestion, feature request or bug report.",
+        "contact.email": "Send email",
+        "footer.subtitle": "Extensions for a better productivity.",
+        "footer.copyright": "© 2026 All rights reserved.",
+        "site.title": "My Extensions",
+        "tag.popular": "Popular",
+        "tag.new": "New",
+        "tag.top": "Top",
+        "ext1.title": "Privacy Guard",
+        "ext1.desc": "Protect your privacy by blocking trackers, ads and fingerprinting while browsing.",
+        "ext2.title": "Tab Manager Pro",
+        "ext2.desc": "Automatically organize hundreds of tabs, find them in 1 click and save memory.",
+        "ext3.title": "Dark Mode Everywhere",
+        "ext3.desc": "Enable dark mode on absolutely all websites, with custom colors.",
+        "ext4.title": "Media Downloader",
+        "ext4.desc": "Download videos, music and images from any website in one click.",
+        "ext5.title": "Shortcuts Master",
+        "ext5.desc": "Create your own custom keyboard shortcuts for any browser action.",
+        "ext6.title": "Web Notes",
+        "ext6.desc": "Take notes directly on web pages, synchronized across all your devices.",
+    }
+};
+
+let currentLang = 'en';
+
+function switchLanguage(lang) {
+    currentLang = lang;
+    document.documentElement.lang = lang;
+    
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[lang][key]) {
+            el.textContent = translations[lang][key];
+        }
+    });
+    
+    // Update page title
+    document.title = lang === 'fr' ? 'Mes Extensions | Portfolio' : 'My Extensions | Portfolio';
+
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.remove('text-primary');
+        btn.classList.add('text-gray-500');
+    });
+    document.getElementById(`lang-${lang}`).classList.remove('text-gray-500');
+    document.getElementById(`lang-${lang}`).classList.add('text-primary');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('lang-fr').addEventListener('click', () => switchLanguage('fr'));
+    document.getElementById('lang-en').addEventListener('click', () => switchLanguage('en'));
+
+    // Apply current language on page load
+    switchLanguage(currentLang);
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+});
