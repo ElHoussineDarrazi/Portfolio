@@ -53,6 +53,7 @@ const translations = {
         "ext5.desc": "Créez vos propres raccourcis clavier personnalisés pour n'importe quelle action sur le navigateur.",
         "ext6.title": "Web Notes",
         "ext6.desc": "Prenez des notes directement sur les pages web, synchronisées sur tous vos appareils.",
+        "ext.sql.desc": "Organisez et gérez facilement vos bases de données SQL directement dans Visual Studio Code. Interface intuitive, gestion de connexions, requêtes et visualisation de données.",
     },
     en: {
         "nav.extensions": "Extensions",
@@ -93,6 +94,7 @@ const translations = {
         "ext5.desc": "Create your own custom keyboard shortcuts for any browser action.",
         "ext6.title": "Web Notes",
         "ext6.desc": "Take notes directly on web pages, synchronized across all your devices.",
+        "ext.sql.desc": "Easily organize and manage your SQL databases directly in Visual Studio Code. Intuitive interface, connection management, queries and data visualization.",
     }
 };
 
@@ -120,6 +122,74 @@ function switchLanguage(lang) {
     document.getElementById(`lang-${lang}`).classList.add('text-primary');
 }
 
+// Fetch VS Code Marketplace statistics
+async function loadExtensionStats() {
+    const CACHE_KEY = 'vs-marketplace-stats';
+    const CACHE_DURATION = 1000 * 60 * 60; // 1 hour cache
+
+    // Try from cache first
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (cached) {
+        const { data, timestamp } = JSON.parse(cached);
+        if (Date.now() - timestamp < CACHE_DURATION) {
+            displayStats(data, null);
+            return;
+        }
+    }
+
+    try {
+        const response = await fetch('https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json;api-version=7.1-preview.1',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                filters: [{
+                    criteria: [
+                        { filterType: 7, value: "ElHoussineDARRAZI.sqldatabaseorganizer" }
+                    ]
+                }],
+                flags: 0x192
+            })
+        });
+
+        const result = await response.json();
+        const extension = result.results[0].extensions[0];
+        
+        const stats = {};
+        extension.statistics.forEach(stat => {
+            stats[stat.statisticName] = stat.value;
+        });
+
+        // Save to cache
+        localStorage.setItem(CACHE_KEY, JSON.stringify({
+            data: stats,
+            timestamp: Date.now()
+        }));
+
+        displayStats(stats, extension);
+
+    } catch (error) {
+        console.error('Failed to load extension stats:', error);
+        // Keep default values
+    }
+}
+
+function displayStats(stats, extension) {
+    // Real unique installations only (exact number displayed on marketplace extension page)
+    const uniqueInstalls = Math.round(stats.install || 0);
+    const rating = (stats.averagerating || 0).toFixed(1);
+    // VS Code API returns version in `extension.versions[0].version`
+    const version = extension?.versions?.[0]?.version || extension?.version || '1.0.0';
+    
+    document.getElementById('ext-installs').textContent = uniqueInstalls.toLocaleString();
+    document.getElementById('ext-rating').textContent = rating;
+    document.getElementById('ext-version').textContent = `v${version}`;
+    
+    localStorage.removeItem('vs-marketplace-stats');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('lang-fr').addEventListener('click', () => switchLanguage('fr'));
     document.getElementById('lang-en').addEventListener('click', () => switchLanguage('en'));
@@ -133,4 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
         });
     });
+
+    // Load real stats from VS Code Marketplace
+    loadExtensionStats();
 });
