@@ -35,9 +35,9 @@ const translations = {
         "contact.title": "Une idée ? Un problème ?",
         "contact.subtitle": "N'hésitez pas à me contacter pour toute suggestion, demande de fonctionnalité ou signalement de bug.",
         "contact.email": "Envoyer un mail",
-        "footer.subtitle": "Des extensions pour une productivité meilleure.",
-        "footer.copyright": "© 2026 Tous droits réservés.",
-        "site.title": "Mes Extensions",
+         "footer.subtitle": "Des extensions pour une productivité meilleure.",
+         "footer.copyright": "© 2026 El Houssine DARRAZI. Tous droits réservés.",
+         "site.title": "Mes Extensions",
         "tag.popular": "Populaire",
         "tag.new": "Nouveau",
         "tag.top": "Top",
@@ -53,8 +53,9 @@ const translations = {
         "ext5.desc": "Créez vos propres raccourcis clavier personnalisés pour n'importe quelle action sur le navigateur.",
         "ext6.title": "Web Notes",
         "ext6.desc": "Prenez des notes directement sur les pages web, synchronisées sur tous vos appareils.",
-        "ext.sql.desc": "Organisez et gérez facilement vos bases de données SQL directement dans Visual Studio Code. Interface intuitive, gestion de connexions, requêtes et visualisation de données.",
-    },
+         "ext.sql.desc": "Organisez et gérez facilement vos bases de données SQL directement dans Visual Studio Code. Interface intuitive, gestion de connexions, requêtes et visualisation de données.",
+         "ext.remoteops.desc": "Connectez-vous facilement à vos serveurs distants en SSH directement depuis Visual Studio Code. Gestion des profils de connexion, raccourcis rapides et connexion en un clic.",
+     },
     en: {
         "nav.extensions": "Extensions",
         "nav.about": "About",
@@ -76,9 +77,9 @@ const translations = {
         "contact.title": "Got an idea? Found an issue?",
         "contact.subtitle": "Feel free to contact me for any suggestion, feature request or bug report.",
         "contact.email": "Send email",
-        "footer.subtitle": "Extensions for a better productivity.",
-        "footer.copyright": "© 2026 All rights reserved.",
-        "site.title": "My Extensions",
+         "footer.subtitle": "Extensions for a better productivity.",
+         "footer.copyright": "© 2026 El Houssine DARRAZI. All rights reserved.",
+         "site.title": "My Extensions",
         "tag.popular": "Popular",
         "tag.new": "New",
         "tag.top": "Top",
@@ -94,8 +95,9 @@ const translations = {
         "ext5.desc": "Create your own custom keyboard shortcuts for any browser action.",
         "ext6.title": "Web Notes",
         "ext6.desc": "Take notes directly on web pages, synchronized across all your devices.",
-        "ext.sql.desc": "Easily organize and manage your SQL databases directly in Visual Studio Code. Intuitive interface, connection management, queries and data visualization.",
-    }
+         "ext.sql.desc": "Easily organize and manage your SQL databases directly in Visual Studio Code. Intuitive interface, connection management, queries and data visualization.",
+         "ext.remoteops.desc": "Easily connect to your remote servers via SSH directly from Visual Studio Code. Connection profiles management, quick shortcuts and one-click connection."
+     }
 };
 
 let currentLang = 'en';
@@ -124,70 +126,57 @@ function switchLanguage(lang) {
 
 // Fetch VS Code Marketplace statistics
 async function loadExtensionStats() {
-    const CACHE_KEY = 'vs-marketplace-stats';
-    const CACHE_DURATION = 1000 * 60 * 60; // 1 hour cache
+    const EXTENSIONS = [
+        { id: "ElHoussineDARRAZI.sqldatabaseorganizer", prefix: "ext" },
+        { id: "ElHoussineDARRAZI.remoteops", prefix: "remoteops" }
+    ];
 
-    // Try from cache first
-    const cached = localStorage.getItem(CACHE_KEY);
-    if (cached) {
-        const { data, timestamp } = JSON.parse(cached);
-        if (Date.now() - timestamp < CACHE_DURATION) {
-            displayStats(data, null);
-            return;
+    for (const ext of EXTENSIONS) {
+        try {
+            const response = await fetch('https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json;api-version=7.1-preview.1',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    filters: [{
+                        criteria: [
+                            { filterType: 7, value: ext.id }
+                        ]
+                    }],
+                    flags: 0x192
+                })
+            });
+
+            const result = await response.json();
+            const extension = result.results[0].extensions[0];
+            
+            const stats = {};
+            extension.statistics.forEach(stat => {
+                stats[stat.statisticName] = stat.value;
+            });
+
+            displayExtensionStats(stats, extension, ext.prefix);
+
+        } catch (error) {
+            console.error(`Failed to load stats for ${ext.id}:`, error);
         }
-    }
-
-    try {
-        const response = await fetch('https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json;api-version=7.1-preview.1',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                filters: [{
-                    criteria: [
-                        { filterType: 7, value: "ElHoussineDARRAZI.sqldatabaseorganizer" }
-                    ]
-                }],
-                flags: 0x192
-            })
-        });
-
-        const result = await response.json();
-        const extension = result.results[0].extensions[0];
-        
-        const stats = {};
-        extension.statistics.forEach(stat => {
-            stats[stat.statisticName] = stat.value;
-        });
-
-        // Save to cache
-        localStorage.setItem(CACHE_KEY, JSON.stringify({
-            data: stats,
-            timestamp: Date.now()
-        }));
-
-        displayStats(stats, extension);
-
-    } catch (error) {
-        console.error('Failed to load extension stats:', error);
-        // Keep default values
     }
 }
 
-function displayStats(stats, extension) {
-    // Real unique installations only (exact number displayed on marketplace extension page)
+function displayExtensionStats(stats, extension, prefix) {
     const uniqueInstalls = Math.round(stats.install || 0);
     const rating = (stats.averagerating || 0).toFixed(1);
-    // VS Code API returns version in `extension.versions[0].version`
-    const version = extension?.versions?.[0]?.version || extension?.version || '1.0.0';
+    const version = extension?.versions?.[0]?.version || '1.0.0';
     
-    document.getElementById('ext-installs').textContent = uniqueInstalls.toLocaleString();
-    document.getElementById('ext-rating').textContent = rating;
-    document.getElementById('ext-version').textContent = `v${version}`;
+    const installsEl = document.getElementById(`${prefix}-installs`);
+    const ratingEl = document.getElementById(`${prefix}-rating`);
+    const versionEl = document.getElementById(`${prefix}-version`);
     
-    localStorage.removeItem('vs-marketplace-stats');
+    if (installsEl) installsEl.textContent = uniqueInstalls.toLocaleString();
+    if (ratingEl) ratingEl.textContent = rating;
+    if (versionEl) versionEl.textContent = `v${version}`;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
