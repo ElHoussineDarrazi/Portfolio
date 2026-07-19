@@ -53,9 +53,10 @@ const translations = {
         "ext5.desc": "Créez vos propres raccourcis clavier personnalisés pour n'importe quelle action sur le navigateur.",
         "ext6.title": "Web Notes",
         "ext6.desc": "Prenez des notes directement sur les pages web, synchronisées sur tous vos appareils.",
-         "ext.sql.desc": "Organisez et gérez facilement vos bases de données SQL directement dans Visual Studio Code. Interface intuitive, gestion de connexions, requêtes et visualisation de données.",
+"ext.sql.desc": "Organisez et gérez facilement vos bases de données SQL directement dans Visual Studio Code. Interface intuitive, gestion de connexions, requêtes et visualisation de données.",
          "ext.remoteops.desc": "Connectez-vous facilement à vos serveurs distants en SSH directement depuis Visual Studio Code. Gestion des profils de connexion, raccourcis rapides et connexion en un clic.",
-     },
+         "ext.sshfe.desc": "Explorez et gérez vos fichiers SSH directement dans VS Code avec une interface intuitive.",
+      },
     en: {
         "nav.extensions": "Extensions",
         "nav.about": "About",
@@ -96,7 +97,8 @@ const translations = {
         "ext6.title": "Web Notes",
         "ext6.desc": "Take notes directly on web pages, synchronized across all your devices.",
          "ext.sql.desc": "Easily organize and manage your SQL databases directly in Visual Studio Code. Intuitive interface, connection management, queries and data visualization.",
-         "ext.remoteops.desc": "Easily connect to your remote servers via SSH directly from Visual Studio Code. Connection profiles management, quick shortcuts and one-click connection."
+         "ext.remoteops.desc": "Easily connect to your remote servers via SSH directly from Visual Studio Code. Connection profiles management, quick shortcuts and one-click connection.",
+         "ext.sshfe.desc": "Explore and manage your SSH files directly in VS Code with an intuitive interface."
      }
 };
 
@@ -128,7 +130,8 @@ function switchLanguage(lang) {
 async function loadExtensionStats() {
     const EXTENSIONS = [
         { id: "ElHoussineDARRAZI.sqldatabaseorganizer", prefix: "ext" },
-        { id: "ElHoussineDARRAZI.remoteops", prefix: "remoteops" }
+        { id: "ElHoussineDARRAZI.remoteops", prefix: "remoteops" },
+        { id: "ElHoussineDARRAZI.ssh-file-explorer", prefix: "sshfe" }
     ];
 
     for (const ext of EXTENSIONS) {
